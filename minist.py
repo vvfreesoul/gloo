@@ -65,7 +65,8 @@ def train(gpu, args):
     dist.init_process_group(backend='gloo', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
     ####
-    model = ConvNet().to(device)
+    model = ConvNet()
+    model.to(device)
     ####
     torch.cuda.set_device(gpu)
     model.cuda(gpu)
