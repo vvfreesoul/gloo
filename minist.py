@@ -64,7 +64,9 @@ def train(gpu, args):
     device = torch.device("cuda:{}".format(rank))
     dist.init_process_group(backend='gloo', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
+    ####
     model = ConvNet().to(device)
+    ####
     torch.cuda.set_device(gpu)
     model.cuda(gpu)
     batch_size = 100
@@ -87,13 +89,14 @@ def train(gpu, args):
                                                num_workers=0,
                                                pin_memory=True,
                                                sampler=train_sampler)
-    train_loader.to(device)
     start = datetime.now()
     total_step = len(train_loader)
     for epoch in range(args.epochs):
         for i, (images, labels) in enumerate(train_loader):
             images = images.cuda(non_blocking=True)
             labels = labels.cuda(non_blocking=True)
+            images.to(device)
+            labels.to(device)
             # Forward pass
             outputs = model(images)
             loss = criterion(outputs, labels)
