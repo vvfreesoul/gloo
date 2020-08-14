@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.distributed as dist
 from apex.parallel import DistributedDataParallel as DDP
 from apex import amp
-device = torch.device("cuda:{}".format(rank))
+
 
 def main():
     print('run main')
@@ -61,11 +61,11 @@ class ConvNet(nn.Module):
 def train(gpu, args):
     print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
+    device = torch.device("cuda:{}".format(rank))
     dist.init_process_group(backend='gloo', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
     ####
     model = ConvNet()
-    model.to(device)
     ####
     torch.cuda.set_device(gpu)
     model.cuda(gpu)
